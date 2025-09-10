@@ -1,0 +1,24 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #282c34;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #20232a;
+}
+
+footer {
+  text-align: center;
+  background-color: #20232a;
+  margin-top: 2rem;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
