@@ -1,0 +1,18 @@
+{
+  "footer": {
+    "copyright": "© 2025 - Asdin - ES"
+  },
+  "nav": {
+    "home": "Inicio",
+    "books": "Libros",
+    "contacts": "Contactos",
+    "logout": "Cerrar sesión"
+  },
+  "login": {
+    "title": "Iniciar Sesión",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "submit": "Entrar",
+    "error": "Usuario o contraseña inválidos"
+  }
+}

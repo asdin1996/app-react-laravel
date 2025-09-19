@@ -1,64 +1,96 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { DataGrid } from "@mui/x-data-grid";
+import { useQuery } from "@tanstack/react-query";
 import { getContacts } from "../../services/api";
 
+/**
+ * Contacts Component
+ *
+ * Fetches and displays a paginated list of contacts using Material-UI DataGrid.
+ * Features:
+ * - Server-side Pagination
+ * - Loading and Error states
+ * - Responsive table layout
+ *
+ * @component
+ */
 export default function Contacts() {
-  const [contacts, setContacts] = useState([]);
-  const [page, setPage] = useState(1);
-  const [perPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const data = await getContacts(page, perPage);
-        setContacts(data.data || data);
-        setTotalPages(data.last_page || 1);
-      } catch (err) {
-        console.error("Error cargando contacts:", err);
-      }
-    };
+  // Fetch contacts using React Query
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["contacts", page, pageSize],
+    queryFn: ({ queryKey }) => {
+      const [_key, pageNumber, perPage] = queryKey;
+      return getContacts(pageNumber, perPage);
+    },
+    keepPreviousData: true,
+  });
 
-    fetchContacts();
-  }, [page, perPage]);
+  const contacts = data?.data || [];
+  const rowCount = data?.total ?? 0;
+
+  // Define DataGrid columns
+  const columns = [
+    { field: "id", headerName: "ID", width: 70 },
+    { field: "name", headerName: "Name", width: 200 },
+    { field: "email", headerName: "Email", width: 250 },
+    {
+      field: "created_at",
+      headerName: "Created At",
+      width: 200,
+      valueFormatter: (params) => new Date(params.value).toLocaleString(),
+    },
+  ];
 
   return (
-    <div className="contacts-container">
-      <h2>Contacts (Página {page})</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Creado</th>
-          </tr>
-        </thead>
-        <tbody>
-          {contacts.length > 0 ? (
-            contacts.map((c) => (
-              <tr key={c.id}>
-                <td>{c.id}</td>
-                <td>{c.name}</td>
-                <td>{c.email}</td>
-                <td>{new Date(c.created_at).toLocaleString()}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No hay contactos</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+    <div style={{ height: 500, width: "100%" }}>
+      <h2>Contacts</h2>
 
-      <div className="pagination">
-        <button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
-          Anterior
-        </button>
-        <button onClick={() => setPage((p) => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
-          Siguiente
-        </button>
-      </div>
+      <DataGrid
+        rows={contacts}
+        columns={columns}
+        rowCount={rowCount}
+        page={page}
+        pageSize={pageSize}
+        pagination
+        paginationMode="server"
+        onPageChange={(newPage, details) => {
+          console.log("Page clicked:", newPage);
+          setPage(newPage);
+        }} 
+        onPageSizeChange={(newPageSize) => {
+          setPageSize(newPageSize);
+          setPage(0);
+        }}
+        rowsPerPageOptions={[5, 10, 20]}
+        sx={{
+          border: "none",
+          padding: "15px",
+          fontSize: "14px",
+          "& .MuiDataGrid-cell": {
+            padding: "8px 16px",
+            color: "#fffcfcff",
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: "#ffffffff",
+            color: "#000000ff",
+            fontWeight: "bold",
+          },
+          "& .MuiDataGrid-footerContainer": {
+            backgroundColor: "#f5f5f5",
+          },
+          "& .MuiDataGrid-row:hover": {
+            backgroundColor: "#ffffffff",
+            "& .MuiDataGrid-cell": {
+              color: "#000000ff",
+            },
+          },
+        }}
+      />
+
+      {error && <p style={{ color: "red" }}>Error loading contacts</p>}
     </div>
   );
 }

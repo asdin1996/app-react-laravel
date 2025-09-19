@@ -37,6 +37,59 @@ export async function getBooks() {
   return response.json();
 }
 
+export async function getBookById(id) {
+  const token = getToken();
+
+  const response = await fetch(`${API_CONFIG.BASE_URL}/books/${id}`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener productos");
+  }
+
+  return response.json();
+}
+
+export async function updateBook(id, bookData) {
+  const token = getToken();
+
+  const response = await fetch(`${API_CONFIG.BASE_URL}/books/${id}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(bookData),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Failed to update book: ${errText}`);
+  }
+
+  return response.json();
+}
+
+
+export async function deleteBooks(id) {
+  const token = getToken();
+
+  const response = await fetch(`${API_CONFIG.BASE_URL}/books/${id}`, {
+    method:"DELETE",
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error("Error al obtener productos");
+  }
+
+  return response.json();
+}
 export async function getContacts(page=1,per_page=10) {
   const token = getToken();
 
@@ -52,3 +105,5 @@ export async function getContacts(page=1,per_page=10) {
 
   return response.json();
 }
+
+

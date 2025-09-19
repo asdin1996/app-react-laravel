@@ -2,7 +2,21 @@ import React from "react";
 import { login } from "../../services/api";
 import { saveToken } from "../../utils/auth";
 import { Navigate } from "react-router-dom";
+import { withTranslation } from "react-i18next";
 
+/**
+ * LoginForm Component
+ *
+ * Renders a login form with:
+ * - Username input
+ * - Password input
+ * - Submit button
+ * - Error messages
+ *
+ * Supports internationalization (i18n)
+ *
+ * @component
+ */
 class LoginForm extends React.Component {
   constructor(props) {
     super(props);
@@ -14,10 +28,12 @@ class LoginForm extends React.Component {
     };
   }
 
+  /** Updates the state when inputs change */
   handleChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  /** Handles form submission */
   handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -29,19 +45,22 @@ class LoginForm extends React.Component {
     }
   };
 
+  /** Renders the login form */
   render() {
+    const { t } = this.props;
+
     if (this.state.redirect) {
       return <Navigate to="/home" />;
     }
 
     return (
       <form className="login-form" onSubmit={this.handleSubmit}>
-        <h2 className="login-title">Iniciar Sesión</h2>
+        <h2 className="login-title">{t("login.title")}</h2>
 
         <input
           type="text"
           name="username"
-          placeholder="User"
+          placeholder={t("login.username")}
           value={this.state.username}
           onChange={this.handleChange}
         />
@@ -49,16 +68,17 @@ class LoginForm extends React.Component {
         <input
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder={t("login.password")}
           value={this.state.password}
           onChange={this.handleChange}
         />
 
-        <button type="submit">Entrar</button>
-        {this.state.error && <p>{this.state.error}</p>}
+        <button type="submit">{t("login.submit")}</button>
+        {this.state.error && <p>{t("login.error")}</p>}
       </form>
     );
   }
 }
 
-export default LoginForm;
+// Wrap withTranslation to provide `t` and react to language changes
+export default withTranslation()(LoginForm);
