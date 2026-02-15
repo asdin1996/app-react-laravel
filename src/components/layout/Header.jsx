@@ -84,7 +84,7 @@ class Header extends React.Component {
         <span>{this.state.currentDate}</span>
 
         
-
+      
         {this.state.loggedIn && (
           <nav>
             <Link to="/home">{t("nav.home")}</Link> |{" "}

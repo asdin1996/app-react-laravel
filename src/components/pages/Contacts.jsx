@@ -3,35 +3,29 @@ import { DataGrid } from "@mui/x-data-grid";
 import { useQuery } from "@tanstack/react-query";
 import { getContacts } from "../../services/api";
 
-/**
- * Contacts Component
- *
- * Fetches and displays a paginated list of contacts using Material-UI DataGrid.
- * Features:
- * - Server-side Pagination
- * - Loading and Error states
- * - Responsive table layout
- *
- * @component
- */
 export default function Contacts() {
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
 
-  // Fetch contacts using React Query
   const { data, isLoading, error } = useQuery({
-    queryKey: ["contacts", page, pageSize],
-    queryFn: ({ queryKey }) => {
-      const [_key, pageNumber, perPage] = queryKey;
-      return getContacts(pageNumber, perPage);
-    },
+    queryKey: [
+      "contacts",
+      paginationModel.page + 1,
+      paginationModel.pageSize,
+    ],
+    queryFn: () =>
+      getContacts(
+        paginationModel.page + 1,
+        paginationModel.pageSize
+      ),
     keepPreviousData: true,
   });
 
   const contacts = data?.data || [];
-  const rowCount = data?.total ?? 0;
+  const rowCount = data?.meta?.total ?? 0;
 
-  // Define DataGrid columns
   const columns = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "name", headerName: "Name", width: 200 },
@@ -40,31 +34,28 @@ export default function Contacts() {
       field: "created_at",
       headerName: "Created At",
       width: 200,
-      valueFormatter: (params) => new Date(params.value).toLocaleString(),
+      valueFormatter: (params) =>
+        params?.value
+          ? new Date(params.value).toLocaleString()
+          : "",
     },
   ];
 
   return (
-    <div style={{ height: 500, width: "100%" }}>
+    <div style={{ height: 650, width: "100%" }}>
       <h2>Contacts</h2>
 
       <DataGrid
         rows={contacts}
         columns={columns}
         rowCount={rowCount}
-        page={page}
-        pageSize={pageSize}
-        pagination
         paginationMode="server"
-        onPageChange={(newPage, details) => {
-          console.log("Page clicked:", newPage);
-          setPage(newPage);
-        }} 
-        onPageSizeChange={(newPageSize) => {
-          setPageSize(newPageSize);
-          setPage(0);
-        }}
-        rowsPerPageOptions={[5, 10, 20]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={(model) =>
+          setPaginationModel(model)
+        }
+        pageSizeOptions={[5, 10, 20]}
+        loading={isLoading}
         sx={{
           border: "none",
           padding: "15px",
@@ -90,7 +81,11 @@ export default function Contacts() {
         }}
       />
 
-      {error && <p style={{ color: "red" }}>Error loading contacts</p>}
+      {error && (
+        <p style={{ color: "red" }}>
+          Error loading contacts
+        </p>
+      )}
     </div>
   );
 }

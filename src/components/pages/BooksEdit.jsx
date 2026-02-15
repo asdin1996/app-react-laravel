@@ -16,30 +16,27 @@ export default function BookEdit() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Local form state with default empty strings to avoid controlled/uncontrolled warning
   const [formData, setFormData] = useState({
     title: "",
     contact_id: "",
   });
 
-  // Fetch book data
-  const { data: book, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["book", id],
     queryFn: () => getBookById(id),
     retry: 1,
   });
+  const book = data?.data;
 
-  // Update form state when data loads
   useEffect(() => {
     if (book) {
       setFormData({
         title: book.title || "",
-        contact_id: book.contact_id || "",
+        contact_id: book.contact.id || "",
       });
     }
   }, [book]);
 
-  // Mutation for updating book
   const mutation = useMutation({
     mutationFn: (updatedBook) => updateBook(id, updatedBook),
     onSuccess: () => {
@@ -48,7 +45,6 @@ export default function BookEdit() {
     },
   });
 
-  // Handle input changes
   const handleChange = (e) => {
     const value = e.target.name === "contact_id" ? Number(e.target.value) : e.target.value;
     setFormData((prev) => ({
@@ -57,7 +53,6 @@ export default function BookEdit() {
     }));
   };
 
-  // Handle form submit
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Submitting form:", formData);

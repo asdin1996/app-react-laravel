@@ -18,20 +18,17 @@ export default function Books() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Fetch books with React Query
   const { data, isLoading, error } = useQuery({
     queryKey: ["books"],
     queryFn: () => getBooks(),
   });
 
-  const books = data || [];
+  const books = data?.data || [];
 
-  // Apply filter by title
   const filteredBooks = books.filter((book) =>
     book.title.toLowerCase().includes(filter.toLowerCase())
   );
 
-  // Mutation for deleting a book (calls deleteContacts)
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteBooks(id),
     onSuccess: () => {
@@ -42,7 +39,6 @@ export default function Books() {
     },
   });
 
-  // Define DataGrid columns
   const columns = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "title", headerName: "Title", flex: 1, minWidth: 200 },
@@ -51,13 +47,19 @@ export default function Books() {
       field: "created_at",
       headerName: "Created At",
       width: 200,
-      valueFormatter: (params) => new Date(params.value).toLocaleString(),
+      valueFormatter: (params) => {
+        if (!params || !params.value) return "";
+        return new Date(params.value).toLocaleString();
+      }
     },
     {
       field: "updated_at",
       headerName: "Updated At",
       width: 200,
-      valueFormatter: (params) => new Date(params.value).toLocaleString(),
+      valueFormatter: (params) => {
+        if (!params || !params.value) return "";
+        return new Date(params.value).toLocaleString();
+      }
     },
     {
       field: "actions",
@@ -89,7 +91,6 @@ export default function Books() {
     },
   ];
 
-  // Handler for delete action
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this book?")) {
       deleteMutation.mutate(id);
@@ -122,6 +123,7 @@ export default function Books() {
         sx={{
           border: "none",
           fontSize: "14px",
+          color:"white",
           "& .MuiDataGrid-cell": {
             padding: "8px 12px",
           },
